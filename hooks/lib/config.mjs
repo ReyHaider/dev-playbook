@@ -45,7 +45,7 @@ export function loadConfig(projectDir) {
   }
   let raw;
   try {
-    raw = JSON.parse(text);
+    raw = JSON.parse(text.replace(/^﻿/, ""));
   } catch (err) {
     return { status: "invalid", error: `not valid JSON: ${err.message}` };
   }
