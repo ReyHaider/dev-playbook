@@ -138,21 +138,21 @@ import it (my call).
 - Test: `tests/manifest.test.mjs`
 - Commit as well: the existing `docs/specs/`, `docs/research/` (with `scripts/`) and this plan.
 
-- [ ] **Step 1: `git init -b main` in `C:/dev/personal/dev-playbook`.** Verify with
+- [x] **Step 1: `git init -b main` in `C:/dev/personal/dev-playbook`.** Verify with
   `git config user.name` (expect `ReyHaider`) and `git config user.email` (expect the personal
   address from `.gitconfig-personal`, not the work one).
-- [ ] **Step 2: Write `tests/manifest.test.mjs`:** `test("manifest names the plugin")` parses
+- [x] **Step 2: Write `tests/manifest.test.mjs`:** `test("manifest names the plugin")` parses
   `.claude-plugin/plugin.json` and asserts `name === "dev-playbook"`, that `version` matches
   `/^\d+\.\d+\.\d+$/`, and that `description` is non-empty.
-- [ ] **Step 3: Run `npm test`.** Expect FAIL (no manifest).
-- [ ] **Step 4: Create the files above.**
-- [ ] **Step 5: Run `npm test`.** Expect PASS. Then run `git ls-files --eol` after staging and
+- [x] **Step 3: Run `npm test`.** Expect FAIL (no manifest).
+- [x] **Step 4: Create the files above.**
+- [x] **Step 5: Run `npm test`.** Expect PASS. Then run `git ls-files --eol` after staging and
   expect `i/lf` throughout.
-- [ ] **Step 6: Commit on `main`:**
+- [x] **Step 6: Commit on `main`:**
   `git add <each path> && git commit -m "chore: bootstrap the plugin repo with its design and plan"`.
   This bootstrap is the only task that is not split into test and code commits, because it
   creates the test runner itself.
-- [ ] **Step 7: `git switch -c m1/plugin-core`.** All later tasks commit on this branch.
+- [x] **Step 7: `git switch -c m1/plugin-core`.** All later tasks commit on this branch.
 
 ### Task 2: Glob matching and project-relative paths
 
@@ -171,7 +171,7 @@ import it (my call).
   to `projectDir`, or `null` when outside it. Use `path.win32` when `projectDir` starts with a
   drive letter, otherwise `path.posix`, so the Windows cases also run on Linux CI.
 
-- [ ] **Step 1: Write the table tests.**
+- [x] **Step 1: Write the table tests.**
   - `compileGlob`:
 
     | Pattern | Path | Option | Expect |
@@ -200,10 +200,10 @@ import it (my call).
     | `C:\dev\My Repo` | `D:\x\a.json` | `null` |
     | `/home/u/repo` | `/home/u/repo/data/x` | `data/x` |
     | `/home/u/repo` | `./results/a.json` | `results/a.json` |
-- [ ] **Step 2: Run `npm test`.** Expect FAIL (modules missing). Commit:
+- [x] **Step 2: Run `npm test`.** Expect FAIL (modules missing). Commit:
   `test(hooks): pin glob and path matching`.
-- [ ] **Step 3: Implement both.** `compileGlob` translates the pattern to a `RegExp` once.
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Commit:
+- [x] **Step 3: Implement both.** `compileGlob` translates the pattern to a `RegExp` once.
+- [x] **Step 4: Run `npm test`.** Expect PASS. Commit:
   `feat(hooks): match globs and project-relative paths`.
 
 ### Task 3: The project config
@@ -239,7 +239,7 @@ import it (my call).
   | `protectedPath(path, rule)` | `dev-playbook: ${path} is protected by ${rule} in the project's Claude settings. Change it through the project's own tooling, or ask the person.` |
   | `internalError(hook, message)` | `dev-playbook: the ${hook} hook failed (${message}); it did nothing.` |
 
-- [ ] **Step 1: Write the tests.** Each writes a config into a temp folder.
+- [x] **Step 1: Write the tests.** Each writes a config into a temp folder.
   - `absent` when the file is missing.
   - `{x` gives `invalid` with an error containing `not valid JSON`.
   - A missing `watch` gives an error containing `watch`.
@@ -251,9 +251,9 @@ import it (my call).
   - `test` containing `{exclude}` with no `exclude` is invalid.
   - `format` with no `formatGlobs` is invalid.
   - Each `messages` function returns exactly the text above (one assertion each).
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the config file rules and messages`.
-- [ ] **Step 3: Implement both.**
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): load and validate the project config`.
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the config file rules and messages`.
+- [x] **Step 3: Implement both.**
+- [x] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): load and validate the project config`.
 
 ### Task 4: Running commands
 
@@ -275,7 +275,7 @@ import it (my call).
 - `fillTemplate(template: string, name: string, value: string): string`: the same, but with
   `"value"` in double quotes. Used for single paths (`{file}`).
 
-- [ ] **Step 1: Write the tests.**
+- [x] **Step 1: Write the tests.**
   - `node -e "process.exit(0)"` gives `passed`, exit code 0.
   - `node -e "console.log('x');process.exit(3)"` gives `failed`, exit code 3, and the output
     includes `x`.
@@ -297,9 +297,9 @@ import it (my call).
     `uv run pytest -q`.
   - `replacePlaceholder("pytest {exclude}", "exclude", "--ignore=\"a b.py\"")` gives
     `pytest --ignore="a b.py"`.
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin command running, timeouts and tails`.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run `npm test` on Windows.** Expect PASS. Note in the execution log that Linux
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin command running, timeouts and tails`.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run `npm test` on Windows.** Expect PASS. Note in the execution log that Linux
   coverage comes from CI. Commit: `feat(hooks): run commands with a tree-killing timeout`.
 
 ### Task 5: Git facts and the fingerprint
@@ -325,7 +325,7 @@ local `user.name` and `user.email`).
     a leading `/` is removed.
   - Git runs through `execFileSync` with no shell.
 
-- [ ] **Step 1: Write the tests.**
+- [x] **Step 1: Write the tests.**
   - A non-repo folder gives `null` from both `headInfo` and `computeFingerprint`.
   - A fresh `git init` with no commits gives a `null` `headInfo` and a string fingerprint.
   - `isTestCommit` cases:
@@ -348,9 +348,9 @@ local `user.name` and `user.email`).
   - `headInfo` after committing `tests/t.py` with subject `test: t` returns that subject and
     `["tests/t.py"]`.
   - After `git checkout --detach`, `headInfo` still returns the same commit.
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin git facts and the fingerprint`.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): read git facts and fingerprint watched files`.
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin git facts and the fingerprint`.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): read git facts and fingerprint watched files`.
 
 ### Task 6: Per-project state
 
@@ -366,16 +366,16 @@ local `user.name` and `user.email`).
 - `writeState(file: string, state: State): void`: writes `${file}.${process.pid}.tmp`, then
   renames it.
 
-- [ ] **Step 1: Write the tests.**
+- [x] **Step 1: Write the tests.**
   - A missing file gives the default state.
   - The content `{not json` gives the default state.
   - A written state reads back deep-equal.
   - `stateFile(d, "C:\\Dev\\Repo", "win32") === stateFile(d, "c:/dev/repo/", "win32")`.
   - The same pair differs for `"linux"`.
   - No `.tmp` file is left behind after a write.
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the per-project state file`.
-- [ ] **Step 3: Implement.**
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): keep per-project state atomically`.
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the per-project state file`.
+- [x] **Step 3: Implement.**
+- [x] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): keep per-project state atomically`.
 
 ### Task 7: The stop check
 
@@ -422,7 +422,7 @@ real script on a temp repo).
 - Any thrown error in the entry script gives `systemMessage: internalError("stop-check", message)`.
 - The exit code is always 0.
 
-- [ ] **Step 1: Write the unit tests**, one per branch:
+- [x] **Step 1: Write the unit tests**, one per branch:
   - `absent config is silent`
   - `invalid config warns`
   - `not a git repository warns` (the fake `computeFingerprint` returns `null`, giving
@@ -446,16 +446,16 @@ real script on a temp repo).
   - `red by design is not applied with code changes pending` (`changedPaths` returns
     `["src/a.py"]`, giving a block)
   - `red by design is not applied when static fails`
-- [ ] **Step 2: Write the integration test.**
+- [x] **Step 2: Write the integration test.**
   - Set up a temp git repo with one commit and the config:
     `{"test": "node -e \"process.exit(require('fs').existsSync('ok')?0:1)\"", "watch": ["**/*"]}`.
   - Run `node hooks/stop-check.mjs` with env `CLAUDE_PROJECT_DIR=<repo>`,
     `CLAUDE_PLUGIN_DATA=<temp>` and stdin `{"hook_event_name":"Stop","stop_hook_active":false}`.
   - Expect a stdout JSON with `decision` `block`, and exit code 0.
   - Create the untracked file `ok` and run again. Expect empty stdout.
-- [ ] **Step 3: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the stop check's decisions`.
-- [ ] **Step 4: Implement** `io.mjs`, `stop.mjs` and the entry script.
-- [ ] **Step 5: Run `npm test`.** Expect PASS. Commit: `feat(hooks): block a finished turn while checks fail`.
+- [x] **Step 3: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the stop check's decisions`.
+- [x] **Step 4: Implement** `io.mjs`, `stop.mjs` and the entry script.
+- [x] **Step 5: Run `npm test`.** Expect PASS. Commit: `feat(hooks): block a finished turn while checks fail`.
 
 ### Task 8: Protected paths
 
@@ -500,14 +500,14 @@ real script on a temp repo).
   - a thrown error gives `systemMessage: internalError("protect-paths", message)` and allows
     the command.
 
-- [ ] **Step 1: Write the `deny-rules` tests.**
+- [x] **Step 1: Write the `deny-rules` tests.**
   - Both settings files are merged.
   - `Bash(rm *)` and `Read(./.env)` are ignored.
   - `Edit(/results/**)` matches `results/a.json`.
   - `Edit(//abs/x)` is skipped.
   - Missing files give `[]`.
   - An unparsable `settings.local.json` still lets `settings.json`'s rules load.
-- [ ] **Step 2: Write the `shell-writes` table tests.** The rules are `Edit(/results/**)` and
+- [x] **Step 2: Write the `shell-writes` table tests.** The rules are `Edit(/results/**)` and
   `Edit(/data/test.lock)`.
   - Project `/repo` must give a finding for:
     - `echo x > results/a.json`
@@ -535,13 +535,13 @@ real script on a temp repo).
     - `uv run python -m evals.run --out results/run-1.json`
     - `echo x > results.md`
     - `ls data/test.lock`
-- [ ] **Step 3: Write the integration test.** The entry script with stdin
+- [x] **Step 3: Write the integration test.** The entry script with stdin
   `{"tool_name":"Bash","tool_input":{"command":"echo x > results/a.json"}}` on a temp repo that
   has the config and a deny rule returns `permissionDecision` `deny`. `cat results/a.json`
   returns empty stdout. With no config, empty stdout.
-- [ ] **Step 4: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin protected-path detection for shell commands`.
-- [ ] **Step 5: Implement.**
-- [ ] **Step 6: Run `npm test`.** Expect PASS. Commit: `feat(hooks): refuse shell writes to protected paths`.
+- [x] **Step 4: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin protected-path detection for shell commands`.
+- [x] **Step 5: Implement.**
+- [x] **Step 6: Run `npm test`.** Expect PASS. Commit: `feat(hooks): refuse shell writes to protected paths`.
 
 ### Task 9: Session notice, formatter and registration
 
@@ -569,7 +569,7 @@ modify `README.md` (the config file section); test `tests/session-start.int.test
   | `PreToolUse` | `Bash\|PowerShell` | `protect-paths` | 10 |
   | `PostToolUse` | `Edit\|Write` | `format-file` | 90 |
 
-- [ ] **Step 1: Write the tests.**
+- [x] **Step 1: Write the tests.**
   - **Session start:** the absent, invalid and valid cases give the exact text, the exact text,
     and an empty string.
   - **Formatter:** a `format` command that writes a marker file containing its argument runs
@@ -580,10 +580,10 @@ modify `README.md` (the config file section); test `tests/session-start.int.test
     - it has exactly the four events, with the matchers, scripts and timeouts in the table;
     - every `args[0]` starts with `${CLAUDE_PLUGIN_ROOT}/hooks/`;
     - every referenced script file exists.
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the session notice, formatter and hook registration`.
-- [ ] **Step 3: Implement.** Document the config keys in the README, with the Python example
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(hooks): pin the session notice, formatter and hook registration`.
+- [x] **Step 3: Implement.** Document the config keys in the README, with the Python example
   from design §5.4 and the shell rule (only `&&` and double quotes).
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): register the hooks, the session notice and the formatter`.
+- [x] **Step 4: Run `npm test`.** Expect PASS. Commit: `feat(hooks): register the hooks, the session notice and the formatter`.
 
 ### Task 10: Usage report
 
@@ -610,7 +610,7 @@ research record.
   `output` in $, and a `total`.
 - `bucket(context: int) -> str`: one of `<50k`, `50-100k`, `100-200k`, `200-400k`, `>400k`.
 
-- [ ] **Step 1: Write the tests.**
+- [x] **Step 1: Write the tests.**
   - The fixture holds 3 assistant lines, two sharing one `message.id`. `load_calls` gives 2
     calls.
   - An Opus call with input 10, cache_write 1,000, cache_read 100,000 and output 500, costed
@@ -624,11 +624,11 @@ research record.
   - A line with model `"<synthetic>"` lands in `unpriced`, not the calls.
   - The test module puts the repo root on `sys.path` before `import tools.usage_report`, so
     `discover` needs no packages.
-- [ ] **Step 2: Run `python -m unittest discover -s tests/tools`.** Expect FAIL. Add the step
+- [x] **Step 2: Run `python -m unittest discover -s tests/tools`.** Expect FAIL. Add the step
   `python3 -m unittest discover -s tests/tools` to `.github/workflows/test.yml`. Commit:
   `test(tools): pin the usage report's arithmetic`.
-- [ ] **Step 3: Implement**, porting the logic from `docs/research/scripts/`.
-- [ ] **Step 4: Run the tests.** Expect PASS. Then run the tool on
+- [x] **Step 3: Implement**, porting the logic from `docs/research/scripts/`.
+- [x] **Step 4: Run the tests.** Expect PASS. Then run the tool on
   `C:/Users/ajlal/.claude/projects/c--dev-work-Ticket-Router-Evals`. Expect per-session
   figures close to research §1 (main-session split about 46 / 30 / 24 with 2x writes). Record
   the output in the execution log. Commit: `feat(tools): add the usage report`.
@@ -685,7 +685,7 @@ cited only as history.
     - Stop when the findings turn borderline.
     - Read only; never edit.
 
-- [ ] **Step 1: Write `tests/skills.test.mjs`.**
+- [x] **Step 1: Write `tests/skills.test.mjs`.**
   - Every `skills/*/SKILL.md` has frontmatter whose `name` equals its folder name and whose
     `description` is non-empty.
   - `description` plus `when_to_use` is at most 1,536 characters.
@@ -697,10 +697,10 @@ cited only as history.
   - `dev-process` contains `Test-First: characterisation` and `Test-Change:`.
   - Every `agents/*.md` has `name`, `description` and `tools`.
   - `conflict-reviewer`'s `tools` is exactly `Read, Grep, Glob`.
-- [ ] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(skills): pin the skill and agent structure`.
-- [ ] **Step 3: Write the three files.** Follow superpowers:writing-skills on descriptions and
+- [x] **Step 2: Run `npm test`.** Expect FAIL. Commit: `test(skills): pin the skill and agent structure`.
+- [x] **Step 3: Write the three files.** Follow superpowers:writing-skills on descriptions and
   concision.
-- [ ] **Step 4: Run `npm test`.** Expect PASS. Then read SKILL.md against design §5.3 a to h,
+- [x] **Step 4: Run `npm test`.** Expect PASS. Then read SKILL.md against design §5.3 a to h,
   and list in the execution log any rule the skill does not state. Commit:
   `feat(skills): add the dev-process skill and the conflict reviewer`.
 
@@ -709,23 +709,23 @@ cited only as history.
 Configuration and verification only. There are no new tests in the repo; the evidence goes in
 the execution log.
 
-- [ ] **Step 1: Read the plugin docs** on marketplaces and installation
+- [x] **Step 1: Read the plugin docs** on marketplaces and installation
   (code.claude.com/docs/en/plugins and the publish page), then choose how to install.
   - Default: a local marketplace. Add `.claude-plugin/marketplace.json` listing this repo
     (`"source": "./"`), run `claude plugin marketplace add C:/dev/personal/dev-playbook`, then
     `claude plugin install dev-playbook@dev-playbook`.
   - If the docs show a better way for a plugin developed in place, use it and record why.
   - Commit any manifest change: `chore: add the local marketplace manifest`.
-- [ ] **Step 2: Run `claude plugin validate C:/dev/personal/dev-playbook`.** Expect no errors.
+- [x] **Step 2: Run `claude plugin validate C:/dev/personal/dev-playbook`.** Expect no errors.
   Then run `claude plugin details dev-playbook` and expect always-on cost under about 1,000
   tokens. Record both outputs.
-- [ ] **Step 3: Update the personal settings.**
+- [x] **Step 3: Update the personal settings.**
   - Copy `~/.claude/settings.json` to `~/.claude/settings.json.bak-2026-11-24`.
   - Set top-level `effortLevel` to `"medium"`,
     `modelSettings["claude-opus-5-5"].effortLevel` to `"medium"`, and `autoCompactWindow` to
     `400000`. Keep `model: "opus"`.
   - Verify by reading the file back.
-- [ ] **Step 4: Smoke test** in a scratch repo at `C:/dev/personal/dev-playbook-smoke`:
+- [x] **Step 4: Smoke test** in a scratch repo at `C:/dev/personal/dev-playbook-smoke`:
   - `git init`, with one commit.
   - A failing check:
     `.claude/dev-playbook.json` = `{"test":"node -e \"process.exit(require('fs').existsSync('ok')?0:1)\"","watch":["**/*"]}`
@@ -738,18 +738,18 @@ the execution log.
     `claude -p "Run this exact shell command and nothing else: echo x > results/a.json" --model sonnet --effort low --allowedTools Bash --max-turns 3`.
     Expect `results/a.json` not to exist, and the output to mention `is protected`.
   - These three runs are the only plan usage this task spends.
-- [ ] **Step 5: Check exec-form substitution.** If the runs show the hooks did not fire, check
+- [x] **Step 5: Check exec-form substitution.** If the runs show the hooks did not fire, check
   that `${CLAUDE_PLUGIN_ROOT}` was substituted in exec form. If not, switch `hooks.json` to
   shell form (`node "${CLAUDE_PLUGIN_ROOT}/hooks/<name>.mjs"`), update the `hooks.json` test
   first (test commit), then fix and repeat Step 4.
-- [ ] **Step 6: Delete the scratch repo.** Update README "Install" with the chosen method.
+- [x] **Step 6: Delete the scratch repo.** Update README "Install" with the chosen method.
   Commit: `docs: record how the plugin is installed`.
 
 ### Task 13: Review, publish, merge
 
-- [ ] **Step 1: Run `npm test` and the Python tests.** Expect everything to pass. Record the
+- [x] **Step 1: Run `npm test` and the Python tests.** Expect everything to pass. Record the
   counts.
-- [ ] **Step 2: Review.** A fresh review session on Opus 5.5 at high effort runs
+- [x] **Step 2: Review.** A fresh review session on Opus 5.5 at high effort runs
   superpowers' whole-branch review of `main..m1/plugin-core` against the design (§5.3, §5.4,
   §5.7) and this plan: correctness only, skip style. Apply fixes as test-then-code commits.
 - [ ] **Step 3: Ask Ajlal before publishing.** Then:
@@ -802,4 +802,16 @@ Each gets its own plan, written when it starts.
 
 | Date | Task | Evidence (command and result) | Notes |
 |---|---|---|---|
-| | | | |
+| 2026-11-24 | 1 | `git config user.name` → `ReyHaider`, personal address; `npm test` red (no manifest), then 1 pass; `git ls-files --eol` → `i/lf w/lf` for all 15 files | Manifest `author` is an object, as Claude Code's schema takes. |
+| 2026-11-24 | 2 | `npm test` red (modules missing), then 35 pass | Extra cases: `./` anchor, `a/**/b`, `?`, trailing `/`, Git Bash `/c/` paths, `../` escapes. |
+| 2026-11-24 | 3 | `npm test` red, then 60 pass; a byte-order-mark test and fix after (61 pass) | PowerShell 5.1 writes UTF-8 with a BOM. |
+| 2026-11-24 | 4 | `npm test` red, then 79 pass on Windows | Linux coverage comes from CI. The tree-kill and timeout tests failed when `killTree` was replaced by `child.kill()`. |
+| 2026-11-24 | 5 | `npm test` red, then 93 pass | `git ls-tree` rejects `:(glob)` pathspecs ("pathspec magic not supported"), so the tree is listed in full and filtered with `compileGlob`. |
+| 2026-11-24 | 6 | `npm test` red, then 101 pass | |
+| 2026-11-24 | 7 | `npm test` red, then 125 pass | |
+| 2026-11-24 | 8 | `npm test` red, then 188 pass | `open(` counts as a write only with a write mode, so reads through `python -c` stay allowed. |
+| 2026-11-24 | 9 | `npm test` red, then 202 pass | |
+| 2026-11-24 | 10 | `python -m unittest discover -s tests/tools` red (no module), then 9 pass. Report on the Ticket Router Evals transcripts: 6 sessions; the long session 0fcdab53 splits 47 / 28 / 24 with 88% of its usage above 200k (research §1: 46 / 30 / 24, 87%); all sessions 44 / 30 / 26 | The CI step went into the feat commit, so the test commit holds only test files (D3). |
+| 2026-11-24 | 11 | `npm test` red (no `skills/`), then 220 pass; SKILL.md 148 lines, description plus `when_to_use` 404 characters | Read against design §5.3 a to h: the R1/R2 job's mechanics (pull requests only, full history) are left to M2's script. |
+| 2026-11-24 | 12 | `claude plugin validate` → passed with warnings (root CLAUDE.md, no LICENSE or icon: directory-submission checks only); `claude plugin details dev-playbook` → always-on ~222 tokens; `claude plugin list` → read from `C:\dev\personal\dev-playbook`, enabled. Settings read back: effort medium (top level and Opus 5.5), `autoCompactWindow` 400000, model `opus`. Smoke A → state block count 1; B → `lastPassing` set, reply "ready"; C → "A pre-tool hook blocked it … protect `results/a.json` with an `Edit(/results/**)` rule", no `results/` | Local marketplace: loads in place, no reinstall after edits. Exec form with `${CLAUDE_PLUGIN_ROOT}` in `args` works, so Step 5 was not needed. Run C allowed `Bash` and `PowerShell`. Scratch repo deleted. |
+| 2026-11-24 | 13 | `npm test` → 220 pass; Python → 9 pass. Fresh review (Opus, high effort) found 3 Important and 8 Minor. Fixed test-first: writes behind shell keywords and brackets; deleting or restoring a folder or the root that holds a protected path; a red-by-design pass surviving a later commit; a lingering child hanging the check; a missing command blocking; Git Bash escaped spaces; very long output lines. After the fixes: `npm test` → 279 pass, Python → 9 pass | Deferred minors: `Copy-Item -Destination` before `-Path`; `uv run --with`; `shutil.copy`; `stdout.write` read as a write; paths resolved against the project, not the shell's cwd; the config is not in the fingerprint. |

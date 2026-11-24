@@ -82,9 +82,10 @@ matching ignores case.
 - **Protected paths.** The project's `permissions.deny` rules of the form `Edit(<pattern>)`, in
   `.claude/settings.json` and `.claude/settings.local.json`, are extended to Bash and PowerShell
   commands: a redirection into, or an `rm`, `mv`, `cp`, `sed -i`, `tee`, `Set-Content`,
-  `Out-File`, `git checkout` or `git restore` of, a protected path is refused. This is a
-  heuristic: it does not follow `cd`, and a script that writes the path is not caught, so CI is
-  the backstop. Unlike Claude Code, which reads `Edit(x)` relative to the current folder, the hook
+  `Out-File`, `git checkout` or `git restore` of, a protected path is refused. So is deleting,
+  moving or restoring a folder (or the whole project) that holds one, and `git clean`. This is a
+  heuristic: it does not follow `cd`, wildcards, `git reset` or `git stash`, and a script that
+  writes the path is not caught, so CI is the backstop. Unlike Claude Code, which reads `Edit(x)` relative to the current folder, the hook
   anchors `x`, `./x` and `/x` all at the project root; `//x` and `~/x` rules are skipped.
 - **Formatter.** After Claude edits or writes a file matching `formatGlobs`, `format` runs on it,
   silently.
