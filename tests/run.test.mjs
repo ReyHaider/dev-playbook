@@ -119,7 +119,8 @@ test("a check that exits but leaves a child holding its output still reports its
   assert.equal(result.exitCode, 1);
   assert.match(result.output, /done/);
   assert.ok(elapsed < 4000, `took ${elapsed} ms`);
-  rmSync(dir, { recursive: true, force: true });
+  // Windows holds the folder for a moment after the killed child's exit.
+  rmSync(dir, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
 });
 
 test("a command that is not installed is an error, not a failure", async () => {
