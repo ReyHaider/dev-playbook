@@ -102,7 +102,8 @@ test("a check that exits but leaves a child holding its output still reports its
     path.join(dir, "parent.cjs"),
     [
       "const { spawn } = require('child_process');",
-      "const c = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'inherit', detached: true });",
+      // The child runs in the temp root, so it does not lock this folder on Windows.
+      "const c = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'inherit', detached: true, cwd: require('os').tmpdir() });",
       "require('fs').writeFileSync('child.pid', String(c.pid));",
       "c.unref();",
       "console.log('done');",
