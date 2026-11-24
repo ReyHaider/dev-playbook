@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compileGlob } from "../hooks/lib/glob.mjs";
+import { compileContainer, compileGlob } from "../hooks/lib/glob.mjs";
 
 const cases = [
   ["*.py", "a/b/c.py", undefined, true],
@@ -34,6 +34,35 @@ for (const [pattern, relPath, opts, expected] of cases) {
     assert.equal(compileGlob(pattern, opts)(relPath), expected);
   });
 }
+
+// compileContainer(pattern)(dir): can a path strictly inside dir ("" is the root) match?
+const containerCases = [
+  ["/results/**", "", true],
+  ["/results/**", "results", true],
+  ["/results/**", "results/a", true],
+  ["/results/**", "data", false],
+  ["/data/test.lock", "", true],
+  ["/data/test.lock", "data", true],
+  ["/data/test.lock", "data/test.lock", false],
+  ["/data/test.lock", "dat", false],
+  ["/data/test.lock", "data/sub", false],
+  ["/a/**/b.txt", "a/x/y", true],
+  ["/a/**/b.txt", "b", false],
+  ["/src/*.ts", "src", true],
+  ["/src/*.ts", "src/a", false],
+  ["*.py", "any/folder", true],
+];
+
+for (const [pattern, dir, expected] of containerCases) {
+  test(`compileContainer(${JSON.stringify(pattern)}) on folder ${JSON.stringify(dir)} is ${expected}`, () => {
+    assert.equal(compileContainer(pattern, { caseInsensitive: false })(dir), expected);
+  });
+}
+
+test("compileContainer honours caseInsensitive", () => {
+  assert.equal(compileContainer("/Data/test.lock", { caseInsensitive: true })("data"), true);
+  assert.equal(compileContainer("/Data/test.lock", { caseInsensitive: false })("data"), false);
+});
 
 test("caseInsensitive defaults to the platform", () => {
   const match = compileGlob("/Results/**");

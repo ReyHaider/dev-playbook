@@ -36,6 +36,15 @@ test("Edit(/results/**) matches files under results", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+test("a rule knows which folders can hold what it protects", () => {
+  const dir = project({ "settings.json": deny("Edit(/data/test.lock)") });
+  const [rule] = loadProtectedRules(dir);
+  assert.equal(rule.under(""), true);
+  assert.equal(rule.under("data"), true);
+  assert.equal(rule.under("docs"), false);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test("x and ./x are anchored at the project root", () => {
   const dir = project({ "settings.json": deny("Edit(data/test.lock)", "Edit(./b.txt)") });
   const [lock, b] = loadProtectedRules(dir);
