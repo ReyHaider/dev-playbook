@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { compileGlob } from "./glob.mjs";
+import { compileContainer, compileGlob } from "./glob.mjs";
 
 const SETTINGS_FILES = [".claude/settings.json", ".claude/settings.local.json"];
 const EDIT_RULE = /^Edit\((.+)\)$/;
@@ -27,7 +27,7 @@ export function loadProtectedRules(projectDir) {
       const pattern = m[1];
       if (pattern.startsWith("//") || pattern.startsWith("~/")) continue;
       const anchored = pattern.startsWith("/") || pattern.startsWith("./") ? pattern : `/${pattern}`;
-      rules.push({ rule: entry.trim(), match: compileGlob(anchored) });
+      rules.push({ rule: entry.trim(), match: compileGlob(anchored), under: compileContainer(anchored) });
     }
   }
   return rules;

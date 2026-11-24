@@ -35,8 +35,8 @@ function toRegExpSource(body) {
   return re;
 }
 
-export function compileGlob(pattern, opts = {}) {
-  const caseInsensitive = opts.caseInsensitive ?? process.platform === "win32";
+// The pattern without its anchor, and whether it is anchored at the root.
+function normalise(pattern) {
   let body = pattern;
   let anchored = false;
   if (body.startsWith("./")) {
@@ -53,7 +53,33 @@ export function compileGlob(pattern, opts = {}) {
   } else if (body.includes("/")) {
     anchored = true;
   }
+  return { body, anchored };
+}
+
+const flagsFor = (opts) => ((opts.caseInsensitive ?? process.platform === "win32") ? "i" : "");
+
+export function compileGlob(pattern, opts = {}) {
+  const { body, anchored } = normalise(pattern);
   const prefix = anchored ? "^" : "^(?:.*/)?";
-  const re = new RegExp(`${prefix}${toRegExpSource(body)}$`, caseInsensitive ? "i" : "");
+  const re = new RegExp(`${prefix}${toRegExpSource(body)}$`, flagsFor(opts));
   return (relPath) => re.test(relPath);
+}
+
+// Whether some path strictly inside the folder dir ("" is the root) could match the pattern:
+// deleting, moving or restoring that folder would touch a match.
+export function compileContainer(pattern, opts = {}) {
+  const { body, anchored } = normalise(pattern);
+  if (!anchored) return () => true;
+  const segments = body.split("/");
+  const matchers = segments.map((s) => (s === "**" ? null : new RegExp(`^${toRegExpSource(s)}$`, flagsFor(opts))));
+  return (dir) => {
+    const parts = dir === "" ? [] : dir.split("/");
+    const fits = (si, pi) => {
+      if (pi === parts.length) return si < segments.length;
+      if (si === segments.length) return false;
+      if (segments[si] === "**") return fits(si + 1, pi) || fits(si, pi + 1);
+      return matchers[si].test(parts[pi]) && fits(si + 1, pi + 1);
+    };
+    return fits(0, 0);
+  };
 }
