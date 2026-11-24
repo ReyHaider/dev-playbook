@@ -1,7 +1,8 @@
 # Design: dev-playbook
 
 **Date:** 2026-11-24 · **Status:** approved 2026-11-24, decisions D1 to D18 (D4 with the
-context change); D1 changed to a public repo and D19 added the same day. First plan: [M1, plugin core](../plans/2026-11-24-m1-plugin-core.md) ·
+context change); D1 changed to a public repo, D19 added and D12 confirmed the same day. M1 shipped
+2026-11-24 ([#1](https://github.com/ReyHaider/dev-playbook/pull/1)). First plan: [M1, plugin core](../plans/2026-11-24-m1-plugin-core.md) ·
 **Evidence:**
 [research record](../research/2026-11-24-process-research.md) (every number in this design
 lives there)
@@ -478,7 +479,7 @@ repo, and D19 was added.
 | D9 | Secret scanner | trufflehog (very active) replaces gitleaks (no release since March) outright, pinned by checksum the way the gitleaks job is today; plus GitHub push protection when admin allows |
 | D10 | Order | rollout as §5.6: plugin core and the repo's adoption before phase 3 commits, the playbook split after the pilot. The adoption branch is cut from `main`; phase 3's untracked drafts stay untracked and are never staged (files are staged by explicit path) |
 | D11 | Superpowers | default and non-default skills as §5.3g, overrides as §5.3h |
-| D12 | The playbook in a public personal repo | before M3 moves it in: confirm it holds nothing confidential about Toolshed's client, and that publishing it is acceptable to Toolshed |
+| D12 | The playbook in a public personal repo | before M3 moves it in: confirm it holds nothing confidential about Toolshed's client, and that publishing it is acceptable to Toolshed. Confirmed 2026-11-24 |
 | D13 | Front-end skills | as §5.8d: our ui-design; vendor web-design-guidelines, a trimmed react-best-practices and composition-patterns; install Anthropic's frontend-design and Expo's skills per project; skip ui-ux-pro-max and Impeccable |
 | D14 | Tokens and DESIGN.md | as §5.8a: every scale a token with Tailwind defaults reset; `@theme` as the source for web only, DTCG files plus Style Dictionary for web plus Expo; DESIGN.md front matter generated; `@google/design.md` pinned at 0.4.0 |
 | D15 | Design checks in CI | as §5.8b: the audit script with a budget that only falls; jsx-a11y and typed promise rules; design lint and regenerate-and-diff |
