@@ -17,4 +17,60 @@ To be written when the plugin is installed (M1, Task 12).
 
 ## The config file
 
-To be written with the hooks (M1, Task 9).
+The hooks do nothing in a project without `.claude/dev-playbook.json`, apart from a one-line
+notice when a session starts. The file holds only the project's own facts. A Python project:
+
+```json
+{
+  "static": "uv run ruff format --check . && uv run ruff check . && uv run mypy",
+  "test": "uv run pytest -q {exclude}",
+  "exclude": "--ignore={file}",
+  "testGlobs": ["tests/**"],
+  "timeoutSeconds": 600,
+  "watch": ["**/*.py", "pyproject.toml", "uv.lock"],
+  "format": "uv run ruff format {file}",
+  "formatGlobs": ["**/*.py"]
+}
+```
+
+| Key | Required | Meaning |
+|---|---|---|
+| `static` | one of `static` and `test` | Format check, lint and types. Runs first. |
+| `test` | one of `static` and `test` | The tests. `{exclude}` is replaced with nothing on a normal run. |
+| `exclude` | when `test` uses `{exclude}` | One exclusion argument; must contain `{file}`. Used only for "red by design" (below). |
+| `testGlobs` | no, default `["tests/**"]` | Which files are tests. |
+| `watch` | yes | The files whose changes make the checks run again. |
+| `timeoutSeconds` | no, default 600 | One deadline shared by `static` and `test`; a whole number from 1 to 1500. |
+| `format` | no | Run on each file Claude edits or writes; must contain `{file}`. |
+| `formatGlobs` | when `format` is set | Which edited files are formatted. |
+
+Any other key makes the file invalid, and an invalid file turns the checks off with a visible
+reason.
+
+**Commands run through the platform shell:** `cmd.exe` on Windows, `/bin/sh` on Linux. So that
+one command works on both, use only `&&` between commands and only double quotes. Placeholders
+(`{file}`) are filled with double-quoted paths.
+
+**Globs** are gitignore-style: a leading `/` anchors a pattern at the project root, a pattern with
+no other `/` matches at any depth, `*` stays within a folder and `**` spans folders. On Windows,
+matching ignores case.
+
+### What the hooks do
+
+- **Stop check.** When a turn ends and a watched file has changed since the last passing run, it
+  runs `static`, then `test`. A failure blocks the turn with the command and the last 60 lines of
+  its output. After 3 blocks on the same change it lets the turn end with "This is not done". A
+  timeout, or a command that cannot start, lets the turn end with a "could not check" warning.
+- **Red by design.** When `HEAD` is a test commit (subject type `test`, only test files) and
+  nothing outside the tests has changed, `test` runs again with that commit's test files
+  excluded through `exclude`. If that passes, the turn ends with "tests from <commit> are red by
+  design, awaiting code".
+- **Protected paths.** The project's `permissions.deny` rules of the form `Edit(<pattern>)`, in
+  `.claude/settings.json` and `.claude/settings.local.json`, are extended to Bash and PowerShell
+  commands: a redirection into, or an `rm`, `mv`, `cp`, `sed -i`, `tee`, `Set-Content`,
+  `Out-File`, `git checkout` or `git restore` of, a protected path is refused. This is a
+  heuristic: it does not follow `cd`, and a script that writes the path is not caught, so CI is
+  the backstop. Unlike Claude Code, which reads `Edit(x)` relative to the current folder, the hook
+  anchors `x`, `./x` and `/x` all at the project root; `//x` and `~/x` rules are skipped.
+- **Formatter.** After Claude edits or writes a file matching `formatGlobs`, `format` runs on it,
+  silently.
