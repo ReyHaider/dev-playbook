@@ -1,0 +1,13 @@
+{
+  "name": "dev-playbook",
+  "owner": {
+    "name": "ReyHaider"
+  },
+  "plugins": [
+    {
+      "name": "dev-playbook",
+      "source": "./",
+      "description": "Ajlal's development process: session rules, test-first checks, and hooks that enforce them"
+    }
+  ]
+}
