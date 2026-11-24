@@ -752,14 +752,14 @@ the execution log.
 - [x] **Step 2: Review.** A fresh review session on Opus 5.5 at high effort runs
   superpowers' whole-branch review of `main..m1/plugin-core` against the design (§5.3, §5.4,
   §5.7) and this plan: correctness only, skip style. Apply fixes as test-then-code commits.
-- [ ] **Step 3: Ask Ajlal before publishing.** Then:
+- [x] **Step 3: Ask Ajlal before publishing.** Then:
   - `gh repo create ReyHaider/dev-playbook --public --source . --remote origin` (public since
     2026-11-24, see D1);
   - push `main` and `m1/plugin-core`;
   - open a pull request with the sections Why / What changes / How it was checked.
 
   Check `gh auth status` first: the active account must be `ReyHaider`.
-- [ ] **Step 4: After CI passes and Ajlal approves, merge with a merge commit.** Update the
+- [x] **Step 4: After CI passes and Ajlal approves, merge with a merge commit.** Update the
   design's status line and `docs/OPEN-WORK.md`.
 
 ---
@@ -816,3 +816,4 @@ Each gets its own plan, written when it starts.
 | 2026-11-24 | 11 | `npm test` red (no `skills/`), then 220 pass; SKILL.md 148 lines, description plus `when_to_use` 404 characters | Read against design §5.3 a to h: the R1/R2 job's mechanics (pull requests only, full history) are left to M2's script. |
 | 2026-11-24 | 12 | `claude plugin validate` → passed with warnings (root CLAUDE.md, no LICENSE or icon: directory-submission checks only); `claude plugin details dev-playbook` → always-on ~222 tokens; `claude plugin list` → read from `C:\dev\personal\dev-playbook`, enabled. Settings read back: effort medium (top level and Opus 5.5), `autoCompactWindow` 400000, model `opus`. Smoke A → state block count 1; B → `lastPassing` set, reply "ready"; C → "A pre-tool hook blocked it … protect `results/a.json` with an `Edit(/results/**)` rule", no `results/` | Local marketplace: loads in place, no reinstall after edits. Exec form with `${CLAUDE_PLUGIN_ROOT}` in `args` works, so Step 5 was not needed. Run C allowed `Bash` and `PowerShell`. Scratch repo deleted. |
 | 2026-11-24 | 13 | `npm test` → 220 pass; Python → 9 pass. Fresh review (Opus, high effort) found 3 Important and 8 Minor. Fixed test-first: writes behind shell keywords and brackets; deleting or restoring a folder or the root that holds a protected path; a red-by-design pass surviving a later commit; a lingering child hanging the check; a missing command blocking; Git Bash escaped spaces; very long output lines. After the fixes: `npm test` → 279 pass, Python → 9 pass | Deferred minors: `Copy-Item -Destination` before `-Path`; `uv run --with`; `shutil.copy`; `stdout.write` read as a write; paths resolved against the project, not the shell's cwd; the config is not in the fingerprint. |
+| 2026-11-24 | 13 | Ajlal chose a public repo (D1 changed; MIT licence) and code intelligence (D19), then confirmed D12. The client project name was removed from the unpushed history (afterwards no ref matches it). `gh repo create ReyHaider/dev-playbook --public`; pushed `main` and `m1/plugin-core`; [#1](https://github.com/ReyHaider/dev-playbook/pull/1) CI passed on `ubuntu-latest` (14 s) and `windows-latest` (30 s); `npm test` → 281 pass. Ajlal merged #1 with a merge commit (`d6e4ee8`, two parents) | The deferred minors moved to `docs/OPEN-WORK.md`. Pushes go through `gh auth git-credential`, since Git Credential Manager may hold the Toolshed login. |
