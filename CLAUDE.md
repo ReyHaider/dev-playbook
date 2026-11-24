@@ -33,4 +33,9 @@ All run from the repo root.
 - **Stage files by explicit path.**
 - **No AI attribution** in commits, authors, pull requests or repo text.
 - **Never push, create the GitHub repo or open a pull request without asking Ajlal first.**
+- **`main` is protected by a ruleset, with no bypass.** Changes reach it only through a pull
+  request, merged with a merge commit (squash and rebase are off). Both CI checks,
+  `test (ubuntu-latest, python3)` and `test (windows-latest, python)`, must pass. `main` cannot be
+  force-pushed or deleted. Renaming the CI job or its matrix means updating the ruleset's required
+  checks in the same change, or every merge blocks.
 - Text files are LF in the repo and the working copy (`.gitattributes`).
