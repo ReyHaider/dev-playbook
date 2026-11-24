@@ -40,6 +40,10 @@ test("broken JSON is invalid", () => {
   assert.match(result.error, /not valid JSON/);
 });
 
+test("a UTF-8 byte order mark (PowerShell 5.1's Out-File) is ignored", () => {
+  assert.equal(load(`﻿${JSON.stringify(minimal)}`).status, "ok");
+});
+
 test("a JSON value that is not an object is invalid", () => {
   const result = load("[]");
   assert.equal(result.status, "invalid");
