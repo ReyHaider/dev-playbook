@@ -40,6 +40,14 @@ Starting one:
 The personal default is effort medium on every model, with Opus as the default model. Raise the
 effort at launch for think, review and debug sessions.
 
+**Code intelligence.** The official language-server plugins `pyright-lsp` (Python) and
+`typescript-lsp` (TypeScript and JavaScript) are installed at user scope, so Claude reads
+definitions, references and type errors after each edit instead of searching files. For another
+language, install its official `*-lsp` plugin when a project first uses it. Where a project's type
+gate is mypy, set Pyright to basic mode (`typeCheckingMode = "basic"` under `[tool.pyright]` in
+`pyproject.toml`): mypy stays the gate, and a complaint only Pyright makes is not a reason to
+change code.
+
 ## 3. The build loop
 
 - Read only the plan task and the files it names.
