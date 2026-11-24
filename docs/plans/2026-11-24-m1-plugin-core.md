@@ -79,7 +79,7 @@ dev-playbook/
 ├─ .claude-plugin/plugin.json            manifest (Task 1)
 ├─ .claude-plugin/marketplace.json       local marketplace, if Task 12 chooses it
 ├─ .gitattributes  .gitignore  package.json  README.md  CLAUDE.md
-├─ .github/workflows/test.yml            node --test and python unittest, Linux only
+├─ .github/workflows/test.yml            node --test and python unittest, Linux and Windows
 ├─ hooks/
 │  ├─ hooks.json                         registration (Task 9)
 │  ├─ session-start.mjs  stop-check.mjs  protect-paths.mjs  format-file.mjs   entry scripts
@@ -753,7 +753,8 @@ the execution log.
   superpowers' whole-branch review of `main..m1/plugin-core` against the design (§5.3, §5.4,
   §5.7) and this plan: correctness only, skip style. Apply fixes as test-then-code commits.
 - [ ] **Step 3: Ask Ajlal before publishing.** Then:
-  - `gh repo create ReyHaider/dev-playbook --private --source . --remote origin`;
+  - `gh repo create ReyHaider/dev-playbook --public --source . --remote origin` (public since
+    2026-11-24, see D1);
   - push `main` and `m1/plugin-core`;
   - open a pull request with the sections Why / What changes / How it was checked.
 
@@ -774,8 +775,8 @@ the execution log.
   same hook in both, or it runs twice.
 - **Smoke runs cost usage:** `claude -p` draws from the Pro plan. Keep it to the three
   Sonnet-at-low runs.
-- **CI minutes:** private-repo Actions minutes are limited (about 2,000 a month on Free).
-  Keep CI Linux-only with a 5-minute timeout. Windows behaviour is verified locally.
+- **CI minutes:** the repo is public (D1, changed 2026-11-24), so Actions minutes are free and CI
+  runs on Linux and Windows, each with a 5-minute timeout.
 - **The wrong identity:** confirm the author before the first commit. The work identity is
   only applied under `C:/dev/work/`.
 - **Bash `cd`:** the shell heuristic does not follow `cd`, so `cd sub && rm ../results/x` is

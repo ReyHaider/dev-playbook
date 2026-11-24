@@ -29,6 +29,21 @@ state lives in `~/.claude/plugins/data/dev-playbook-dev-playbook/`.
 Remove it with `claude plugin uninstall dev-playbook@dev-playbook` and
 `claude plugin marketplace remove dev-playbook`.
 
+### Code intelligence
+
+The `dev-process` skill expects the official language-server plugins for Python and
+TypeScript/JavaScript. They cost no always-on context; each needs its language server on the
+`PATH`, pinned here:
+
+```
+npm install -g pyright@1.1.414 typescript-language-server@6.1.0 typescript@7.0.2
+claude plugin install pyright-lsp@claude-plugins-official
+claude plugin install typescript-lsp@claude-plugins-official
+```
+
+For another language, install its official `*-lsp` plugin (and its language server) when a
+project first uses it.
+
 ## The config file
 
 The hooks do nothing in a project without `.claude/dev-playbook.json`, apart from a one-line
@@ -89,3 +104,7 @@ matching ignores case.
   anchors `x`, `./x` and `/x` all at the project root; `//x` and `~/x` rules are skipped.
 - **Formatter.** After Claude edits or writes a file matching `formatGlobs`, `format` runs on it,
   silently.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
