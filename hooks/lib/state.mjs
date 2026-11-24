@@ -3,8 +3,9 @@ import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-// What the stop check remembers about one project between turns.
-const defaultState = () => ({ lastPassing: null, block: { fingerprint: null, count: 0 } });
+// What the stop check remembers about one project between turns. passHead is the HEAD commit a
+// red-by-design pass belongs to; it is null for an ordinary pass, which holds for any HEAD.
+const defaultState = () => ({ lastPassing: null, passHead: null, block: { fingerprint: null, count: 0 } });
 
 export function dataDir() {
   return process.env.CLAUDE_PLUGIN_DATA || path.join(tmpdir(), "dev-playbook");
@@ -22,12 +23,15 @@ const isFingerprint = (v) => v === null || typeof v === "string";
 export function readState(file) {
   try {
     const s = JSON.parse(readFileSync(file, "utf8"));
+    const passHead = s?.passHead ?? null;
     const valid =
       isFingerprint(s?.lastPassing) &&
+      isFingerprint(passHead) &&
       isFingerprint(s?.block?.fingerprint) &&
       Number.isInteger(s.block.count) &&
       s.block.count >= 0;
-    return valid ? { lastPassing: s.lastPassing, block: { fingerprint: s.block.fingerprint, count: s.block.count } } : defaultState();
+    if (!valid) return defaultState();
+    return { lastPassing: s.lastPassing, passHead, block: { fingerprint: s.block.fingerprint, count: s.block.count } };
   } catch {
     return defaultState();
   }

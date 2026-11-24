@@ -40,7 +40,10 @@ export async function runStopCheck({ projectDir }, deps = {}) {
 
   const file = d.stateFile(d.dataDir(), projectDir);
   const state = d.readState(file);
-  if (state.lastPassing === fp) return silent;
+  // A red-by-design pass holds only while HEAD is still the test commit that earned it.
+  if (state.lastPassing === fp && (state.passHead === null || d.headInfo(projectDir)?.sha === state.passHead)) {
+    return silent;
+  }
   if (state.block.fingerprint === fp && state.block.count >= GIVE_UP_AFTER) return notice(messages.giveUp());
 
   const deadline = d.now() + config.timeoutSeconds * 1000;
@@ -61,17 +64,17 @@ export async function runStopCheck({ projectDir }, deps = {}) {
       const red = await redByDesign(d, projectDir, config, run);
       if (red.status === "timeout" || red.status === "error") return notice(messages.couldNotCheck(`test ${red.status}`));
       if (red.status === "passed") {
-        d.writeState(file, { lastPassing: fp, block: { fingerprint: null, count: 0 } });
+        d.writeState(file, { lastPassing: fp, passHead: red.sha, block: { fingerprint: null, count: 0 } });
         return notice(messages.redByDesign(red.sha.slice(0, 7)));
       }
     }
 
     const count = state.block.fingerprint === fp ? state.block.count + 1 : 1;
-    d.writeState(file, { lastPassing: state.lastPassing, block: { fingerprint: fp, count } });
+    d.writeState(file, { lastPassing: state.lastPassing, passHead: state.passHead, block: { fingerprint: fp, count } });
     return json({ decision: "block", reason: messages.block(check.label, check.command, tail(result.output, TAIL_LINES)) });
   }
 
-  d.writeState(file, { lastPassing: fp, block: { fingerprint: null, count: 0 } });
+  d.writeState(file, { lastPassing: fp, passHead: null, block: { fingerprint: null, count: 0 } });
   return silent;
 }
 
