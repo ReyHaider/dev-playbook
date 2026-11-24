@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { runStopCheck } from "../hooks/lib/stop.mjs";
 import * as messages from "../hooks/lib/messages.mjs";
 
-const EMPTY = { lastPassing: null, block: { fingerprint: null, count: 0 } };
+const EMPTY = { lastPassing: null, passHead: null, block: { fingerprint: null, count: 0 } };
 const passed = { status: "passed", exitCode: 0, output: "" };
 const failed = (output = "boom") => ({ status: "failed", exitCode: 1, output });
 
@@ -64,12 +64,12 @@ test("unchanged fingerprint skips without running", async () => {
 test("passing checks record the fingerprint and stay silent", async () => {
   const h = harness({
     config: { static: "s", test: "t", watch: ["**/*"] },
-    state: { lastPassing: "old", block: { fingerprint: "fp1", count: 2 } },
+    state: { lastPassing: "old", passHead: null, block: { fingerprint: "fp1", count: 2 } },
     runs: [passed, passed],
   });
   assert.deepEqual(await run(h), { stdout: "" });
   assert.deepEqual(h.calls.commands, ["s", "t"]);
-  assert.deepEqual(h.calls.written, [{ lastPassing: "fp1", block: { fingerprint: null, count: 0 } }]);
+  assert.deepEqual(h.calls.written, [{ lastPassing: "fp1", passHead: null, block: { fingerprint: null, count: 0 } }]);
 });
 
 test("the normal run removes the {exclude} placeholder", async () => {
@@ -97,23 +97,23 @@ test("failing test blocks and counts", async () => {
   const h = harness({ config: { test: "t", watch: ["**/*"] }, runs: [failed("bad")] });
   const result = parse(await run(h));
   assert.deepEqual(result, { decision: "block", reason: messages.block("test", "t", "bad") });
-  assert.deepEqual(h.calls.written, [{ lastPassing: null, block: { fingerprint: "fp1", count: 1 } }]);
+  assert.deepEqual(h.calls.written, [{ lastPassing: null, passHead: null, block: { fingerprint: "fp1", count: 1 } }]);
 });
 
 test("a second failure on the same fingerprint counts up", async () => {
   const h = harness({
     config: { test: "t", watch: ["**/*"] },
-    state: { lastPassing: null, block: { fingerprint: "fp1", count: 2 } },
+    state: { lastPassing: null, passHead: null, block: { fingerprint: "fp1", count: 2 } },
     runs: [failed()],
   });
   assert.equal(parse(await run(h)).decision, "block");
-  assert.deepEqual(h.calls.written, [{ lastPassing: null, block: { fingerprint: "fp1", count: 3 } }]);
+  assert.deepEqual(h.calls.written, [{ lastPassing: null, passHead: null, block: { fingerprint: "fp1", count: 3 } }]);
 });
 
 test("fourth stop on the same fingerprint gives up", async () => {
   const h = harness({
     config: { test: "t", watch: ["**/*"] },
-    state: { lastPassing: null, block: { fingerprint: "fp1", count: 3 } },
+    state: { lastPassing: null, passHead: null, block: { fingerprint: "fp1", count: 3 } },
   });
   assert.deepEqual(parse(await run(h)), { systemMessage: messages.giveUp() });
   assert.equal(h.calls.commands.length, 0);
@@ -122,11 +122,11 @@ test("fourth stop on the same fingerprint gives up", async () => {
 test("a new fingerprint resets the count", async () => {
   const h = harness({
     config: { test: "t", watch: ["**/*"] },
-    state: { lastPassing: null, block: { fingerprint: "old", count: 3 } },
+    state: { lastPassing: null, passHead: null, block: { fingerprint: "old", count: 3 } },
     runs: [failed()],
   });
   assert.equal(parse(await run(h)).decision, "block");
-  assert.deepEqual(h.calls.written, [{ lastPassing: null, block: { fingerprint: "fp1", count: 1 } }]);
+  assert.deepEqual(h.calls.written, [{ lastPassing: null, passHead: null, block: { fingerprint: "fp1", count: 1 } }]);
 });
 
 test("timeout warns and does not block", async () => {
@@ -167,7 +167,39 @@ test("red by design allows the stop with a note", async () => {
   assert.deepEqual(parse(await run(h)), { systemMessage: messages.redByDesign("abc1234") });
   assert.equal(h.calls.commands.length, 2);
   assert.match(h.calls.commands[1], /--ignore="tests\/test_new\.py"/);
-  assert.equal(h.calls.written.at(-1).lastPassing, "fp1");
+  assert.deepEqual(h.calls.written.at(-1), {
+    lastPassing: "fp1",
+    passHead: "abc1234def",
+    block: { fingerprint: null, count: 0 },
+  });
+});
+
+const redPass = { lastPassing: "fp1", passHead: "abc1234def", block: { fingerprint: null, count: 0 } };
+
+test("a red-by-design pass holds while HEAD is still that test commit", async () => {
+  const h = harness({ config: redConfig, head: redHead, state: redPass });
+  assert.deepEqual(await run(h), { stdout: "" });
+  assert.equal(h.calls.commands.length, 0);
+});
+
+test("a red-by-design pass does not cover a later commit with the same files", async () => {
+  const h = harness({
+    config: redConfig,
+    head: { sha: "fff0000aaa", subject: "docs: notes", files: ["README.md"] },
+    state: redPass,
+    runs: [failed("still red")],
+  });
+  assert.deepEqual(parse(await run(h)), { decision: "block", reason: messages.block("test", "pytest -q", "still red") });
+});
+
+test("a red-by-design pass does not cover an amended commit", async () => {
+  const h = harness({
+    config: redConfig,
+    head: { sha: "eee1111bbb", subject: "feat: claim done", files: ["tests/test_new.py"] },
+    state: redPass,
+    runs: [failed("still red")],
+  });
+  assert.equal(parse(await run(h)).decision, "block");
 });
 
 test("red by design allows uncommitted changes to test files", async () => {

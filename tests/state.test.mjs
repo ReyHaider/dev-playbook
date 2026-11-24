@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { dataDir, readState, stateFile, writeState } from "../hooks/lib/state.mjs";
 
-const DEFAULT = { lastPassing: null, block: { fingerprint: null, count: 0 } };
+const DEFAULT = { lastPassing: null, passHead: null, block: { fingerprint: null, count: 0 } };
 
 function tempDir() {
   return mkdtempSync(path.join(tmpdir(), "dp state "));
@@ -38,12 +38,20 @@ test("a file of the wrong shape reads as the default state", () => {
 test("a written state reads back the same, and leaves no temporary file", () => {
   const dir = tempDir();
   const file = path.join(dir, "nested", "state.json");
-  const state = { lastPassing: "abc", block: { fingerprint: "def", count: 2 } };
+  const state = { lastPassing: "abc", passHead: "1234567", block: { fingerprint: "def", count: 2 } };
   writeState(file, state);
   assert.deepEqual(readState(file), state);
   writeState(file, DEFAULT);
   assert.deepEqual(readState(file), DEFAULT);
   assert.deepEqual(readdirSync(path.dirname(file)), ["state.json"]);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("a state written before passHead existed reads with passHead null", () => {
+  const dir = tempDir();
+  const file = path.join(dir, "state.json");
+  writeFileSync(file, JSON.stringify({ lastPassing: "abc", block: { fingerprint: null, count: 0 } }));
+  assert.deepEqual(readState(file), { lastPassing: "abc", passHead: null, block: { fingerprint: null, count: 0 } });
   rmSync(dir, { recursive: true, force: true });
 });
 
