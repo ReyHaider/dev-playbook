@@ -22,8 +22,8 @@ All run from the repo root.
 - **Node 24 or later, standard library only.** No npm dependencies. Hooks are `.mjs` entry
   scripts over pure modules in `hooks/lib/`, each taking its inputs explicitly so it can be
   tested without Claude Code. `tools/` is Python 3.14, standard library only.
-- **Windows 11 and Linux.** Paths may contain spaces and backslashes. CI runs on Linux only;
-  Windows behaviour is checked locally.
+- **Windows 11 and Linux.** Paths may contain spaces and backslashes. CI runs on Linux and
+  Windows.
 - **A hook never breaks a turn.** Every hook exits 0; an internal error becomes a visible
   `systemMessage` starting with `dev-playbook:`.
 - **User-facing messages live only in `hooks/lib/messages.mjs`.** Tests pin their exact text.

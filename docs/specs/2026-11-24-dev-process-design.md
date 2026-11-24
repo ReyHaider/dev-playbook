@@ -1,7 +1,7 @@
 # Design: dev-playbook
 
 **Date:** 2026-11-24 · **Status:** approved 2026-11-24, decisions D1 to D18 (D4 with the
-context change). First plan: [M1, plugin core](../plans/2026-11-24-m1-plugin-core.md) ·
+context change); D1 changed to a public repo and D19 added the same day. First plan: [M1, plugin core](../plans/2026-11-24-m1-plugin-core.md) ·
 **Evidence:**
 [research record](../research/2026-11-24-process-research.md) (every number in this design
 lives there)
@@ -49,7 +49,7 @@ driven by model, effort and very long sessions, not by superpowers itself.
 - Ceremony heavier than the work it guards.
 - Checks so noisy they get ignored, or that pass when there is nothing to check.
 - Approvals that check nothing ("human-in-the-loop theater").
-- A public repo whose guarantees depend on this private plugin.
+- A public project repo whose guarantees depend on this plugin.
 - Repo text that says an AI wrote it.
 
 ## 3. Constraints
@@ -59,7 +59,7 @@ driven by model, effort and very long sessions, not by superpowers itself.
 - Claude Code 2.1.322 or later. Windows 11 with Git Bash and PowerShell 5.1; Linux CI.
 - The decision tiers (sticky, shaped, trivial) and "one home for each fact" from the playbook.
 - No AI attribution in commits, pull requests or repo documents.
-- The plugin repo is private, on the personal GitHub account `ReyHaider`, cloned at
+- The plugin repo is public under the MIT licence, on the personal GitHub account `ReyHaider`, cloned at
   `C:/dev/personal/dev-playbook` (that folder's git config gives the personal identity).
 
 ## 4. Approaches considered
@@ -77,7 +77,7 @@ driven by model, effort and very long sessions, not by superpowers itself.
 ### 5.1 Four layers, one repo
 
 ```
-dev-playbook/                       private repo, ReyHaider/dev-playbook
+dev-playbook/                       public repo, ReyHaider/dev-playbook
 ├─ .claude-plugin/plugin.json
 ├─ skills/
 │  ├─ dev-process/                  layer 3: how work runs (§5.3)
@@ -101,7 +101,7 @@ dev-playbook/                       private repo, ReyHaider/dev-playbook
 ```
 
 Layer 4 also has a part that lives in each repo (§5.4), because a repo's guarantees must not
-depend on a private plugin.
+depend on a plugin outside it.
 
 ### 5.2 Layers 1 and 2: splitting the playbook
 
@@ -172,7 +172,7 @@ fake the failing step (research §4); agents also game tests they can edit (rese
     checked out. Ordinary CI checks the branch head, so a red test commit in the middle of a
     pushed branch is expected and fine.
   - The script and its tests live in each repo that uses them, because a repo's CI must not
-    depend on this private plugin. Ticket Router Evals holds the first copy (§5.5);
+    depend on this plugin. Ticket Router Evals holds the first copy (§5.5);
     stack-python links to it as the reference.
 - **Proof that the tests bite:** mutation testing on the core modules, weekly and on demand,
   report-only until a baseline exists, then a floor (D7).
@@ -296,11 +296,14 @@ sessions); `autoCompactWindow: 400000`, as a safety net under `/clear`.
 ### 5.5 Adoption in Ticket Router Evals
 
 Each item is sticky there and goes into that repo's own plan, written for outside readers (it
-is public), with no mention of this private plugin beyond "the maintainer's tooling".
+is public). It may link to this plugin as the maintainer's tooling, but nothing in it depends on
+the plugin.
 
 1. Committed `.claude/settings.json`: deny `Edit(/results/**)`, `Edit(/data/test.lock)`, and
    the test set file once frozen. The harness still writes results, through `uv run`.
-2. `.claude/dev-playbook.json` with the check command.
+2. `.claude/dev-playbook.json` with the check command, and `typeCheckingMode = "basic"` under
+   `[tool.pyright]` in `pyproject.toml`, so the Pyright plugin's diagnostics do not compete with
+   mypy (D19).
 3. CI: pytest-randomly; branch coverage with diff-cover on changed lines; Hypothesis tests for
    the JSONL loader and the metrics; pip-audit; zizmor; CodeQL default setup; the R1 and R2
    checks (a script in the repo, with its own tests on fixture git histories); weekly mutmut;
@@ -459,11 +462,12 @@ How it runs:
 
 ## 6. Decisions for approval (sticky)
 
-D1 to D12 were approved on 2026-11-24. D13 to D18 (front-end) await approval.
+D1 to D18 were approved on 2026-11-24. The same day D1 was changed from a private to a public
+repo, and D19 was added.
 
 | ID | Decision | Recommendation |
 |---|---|---|
-| D1 | Name and home | plugin `dev-playbook`; private repo `ReyHaider/dev-playbook`; local `C:/dev/personal/dev-playbook` |
+| D1 | Name and home | plugin `dev-playbook`; public repo `ReyHaider/dev-playbook` under the MIT licence (changed from private on 2026-11-24); local `C:/dev/personal/dev-playbook` |
 | D2 | Hook runtime | Node, standard library only: present for every stack he builds. Python is missing on JS-only machines; bash is missing on PowerShell-only machines |
 | D3 | Test-first form | as §5.3d: test commit first, red check in CI, the two trailers, two or more commits per task |
 | D4 | Models, effort, context | as §5.3b; effort medium by default on every model; default model stays Opus, build sessions start on Sonnet; build sessions `/clear` at a task boundary past about 250k, `autoCompactWindow` 400k; revisit after the pilot |
@@ -474,21 +478,23 @@ D1 to D12 were approved on 2026-11-24. D13 to D18 (front-end) await approval.
 | D9 | Secret scanner | trufflehog (very active) replaces gitleaks (no release since March) outright, pinned by checksum the way the gitleaks job is today; plus GitHub push protection when admin allows |
 | D10 | Order | rollout as §5.6: plugin core and the repo's adoption before phase 3 commits, the playbook split after the pilot. The adoption branch is cut from `main`; phase 3's untracked drafts stay untracked and are never staged (files are staged by explicit path) |
 | D11 | Superpowers | default and non-default skills as §5.3g, overrides as §5.3h |
-| D12 | The playbook on a personal account | confirm it holds nothing confidential about Toolshed's client, and that keeping it on a personal account is acceptable to Toolshed |
+| D12 | The playbook in a public personal repo | before M3 moves it in: confirm it holds nothing confidential about Toolshed's client, and that publishing it is acceptable to Toolshed |
 | D13 | Front-end skills | as §5.8d: our ui-design; vendor web-design-guidelines, a trimmed react-best-practices and composition-patterns; install Anthropic's frontend-design and Expo's skills per project; skip ui-ux-pro-max and Impeccable |
 | D14 | Tokens and DESIGN.md | as §5.8a: every scale a token with Tailwind defaults reset; `@theme` as the source for web only, DTCG files plus Style Dictionary for web plus Expo; DESIGN.md front matter generated; `@google/design.md` pinned at 0.4.0 |
 | D15 | Design checks in CI | as §5.8b: the audit script with a budget that only falls; jsx-a11y and typed promise rules; design lint and regenerate-and-diff |
 | D16 | Browser checks | as §5.8c: the Playwright suite at six widths on fixture data, with visual regression on a few pages and Lighthouse budgets; the Playwright CLI pinned per project, no browser MCP by default |
 | D17 | Design reviewer | as §5.8e |
 | D18 | Definition of done and Expo | as §5.8f and §5.8g |
+| D19 | Code intelligence | the official `pyright-lsp` and `typescript-lsp` plugins at user scope, their language servers installed globally at pinned versions (README); other languages' official LSP plugins when a project first uses them; Pyright in basic mode where mypy is the gate; measured in the phase 3 pilot |
 
 ## 7. Left to the builder
 
 - The wording, descriptions and triggers of each skill, and file names inside the plugin.
 - The hook scripts' internals: fingerprinting, output trimming, Windows path handling.
-- How the plugin is installed: `~/.claude/skills/` (`claude plugin init`) or a private
+- How the plugin is installed: `~/.claude/skills/` (`claude plugin init`) or a
   marketplace, after reading `plugins/publish.md`.
-- The plugin repo's own CI, kept fast: private repos have limited free Actions minutes.
+- The plugin repo's own CI, kept fast. It runs on Linux and Windows, since public repos have free
+  Actions minutes.
 - Exact CI job layout and versions in Ticket Router Evals, within the decisions above.
 
 ## 8. Calls made after the builder check
@@ -503,7 +509,7 @@ follows; each is marked "my call" where it appears.
   draft: any non-test commit touching a test file needs `Test-Change`, not only edits to files
   a test commit introduced. It runs on pull requests only, so a red commit mid-branch is fine.
 - **Where the red-check script lives:** in each repo, Ticket Router Evals first, because a
-  repo's CI must not depend on the private plugin (§5.3d).
+  repo's CI must not depend on the plugin (§5.3d).
 - **How the hooks find things:** `$CLAUDE_PROJECT_DIR` for the repo; deny rules from the
   project's settings files; gitignore-style matching (§5.4).
 - **Homes for the coverage floor and the mutmut module list:** `pyproject.toml` (§5.5).
