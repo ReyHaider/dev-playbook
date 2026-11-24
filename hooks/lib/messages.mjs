@@ -17,3 +17,5 @@ export const protectedPath = (path, rule) =>
   `dev-playbook: ${path} is protected by ${rule} in the project's Claude settings. Change it through the project's own tooling, or ask the person.`;
 
 export const internalError = (hook, message) => `dev-playbook: the ${hook} hook failed (${message}); it did nothing.`;
+
+export const truncated = (count) => ` [... ${count} more characters]`;
