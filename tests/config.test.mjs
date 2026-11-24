@@ -172,6 +172,10 @@ test("protectedPath() text", () => {
   );
 });
 
+test("truncated() text", () => {
+  assert.equal(messages.truncated(12), " [... 12 more characters]");
+});
+
 test("internalError() text", () => {
   assert.equal(messages.internalError("stop-check", "M"), "dev-playbook: the stop-check hook failed (M); it did nothing.");
 });

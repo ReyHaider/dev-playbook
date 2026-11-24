@@ -1,9 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
+import { truncated } from "../hooks/lib/messages.mjs";
 import { fillTemplate, replacePlaceholder, runCommand, tail } from "../hooks/lib/run.mjs";
 
 function tempDir() {
@@ -93,6 +94,56 @@ test("huge output keeps its end", async () => {
   assert.equal(lines[59], "line 200000");
   assert.equal(lines[0], "line 199941");
   rmSync(dir, { recursive: true, force: true });
+});
+
+test("a check that exits but leaves a child holding its output still reports its own exit", async () => {
+  const dir = tempDir();
+  writeFileSync(
+    path.join(dir, "parent.cjs"),
+    [
+      "const { spawn } = require('child_process');",
+      "const c = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 8000)'], { stdio: 'inherit', detached: true });",
+      "require('fs').writeFileSync('child.pid', String(c.pid));",
+      "c.unref();",
+      "console.log('done');",
+      "process.exit(1);",
+    ].join("\n"),
+  );
+  const started = Date.now();
+  const result = await runCommand("node parent.cjs", { cwd: dir, timeoutMs: 30000 });
+  const elapsed = Date.now() - started;
+  try {
+    process.kill(Number(readFileSync(path.join(dir, "child.pid"), "utf8")));
+  } catch {}
+  assert.equal(result.status, "failed");
+  assert.equal(result.exitCode, 1);
+  assert.match(result.output, /done/);
+  assert.ok(elapsed < 4000, `took ${elapsed} ms`);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("a command that is not installed is an error, not a failure", async () => {
+  const dir = tempDir();
+  const result = await runCommand("dp-definitely-not-a-command-4b2e", { cwd: dir, timeoutMs: 30000 });
+  assert.equal(result.status, "error");
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("tail cuts a very long line", () => {
+  const out = tail(`short\n${"x".repeat(1_000_000)}`, 60);
+  assert.ok(out.length < 1000, `${out.length} characters`);
+  assert.ok(out.startsWith(`short\n${"x".repeat(400)}`));
+  assert.ok(out.endsWith(truncated(1_000_000 - 400)));
+});
+
+test("tail treats \\r\\r\\n as one line break", () => {
+  assert.equal(tail("line one\r\r\nline two\r\r\n", 60), "line one\nline two");
+});
+
+test("tail is fast on a long run of whitespace", () => {
+  const started = Date.now();
+  tail(`a${" ".repeat(50_000)}b${" ".repeat(50_000)}`, 60);
+  assert.ok(Date.now() - started < 200);
 });
 
 test("tail keeps the last lines", () => {
