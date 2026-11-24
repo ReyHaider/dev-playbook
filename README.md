@@ -13,7 +13,21 @@ It holds:
 
 ## Install
 
-To be written when the plugin is installed (M1, Task 12).
+The repo is its own local marketplace (`.claude-plugin/marketplace.json`). A marketplace added
+from a local path loads its plugin in place, so edits here take effect at the next session (or
+after `/reload-plugins`), with no reinstall and no version bump.
+
+```
+claude plugin marketplace add C:/dev/personal/dev-playbook
+claude plugin install dev-playbook@dev-playbook
+```
+
+Check it with `claude plugin validate C:/dev/personal/dev-playbook` and
+`claude plugin details dev-playbook`; the always-on cost is about 220 tokens. The stop check's
+state lives in `~/.claude/plugins/data/dev-playbook-dev-playbook/`.
+
+Remove it with `claude plugin uninstall dev-playbook@dev-playbook` and
+`claude plugin marketplace remove dev-playbook`.
 
 ## The config file
 
