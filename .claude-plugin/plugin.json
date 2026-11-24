@@ -4,5 +4,6 @@
   "description": "Ajlal's development process: session rules, test-first checks, and hooks that enforce them",
   "author": {
     "name": "ReyHaider"
-  }
+  },
+  "license": "MIT"
 }
