@@ -82,6 +82,11 @@ test("dev-process points to the plan template, which exists", () => {
   assert.ok(existsSync(path.join(root, "skills", "dev-process", "references", "plan-template.md")));
 });
 
+test("dev-process names the code-intelligence plugins", () => {
+  assert.match(devProcess(), /\bpyright-lsp\b/);
+  assert.match(devProcess(), /\btypescript-lsp\b/);
+});
+
 const agentFiles = readdirSync(path.join(root, "agents")).filter((f) => f.endsWith(".md"));
 
 test("the conflict-reviewer agent exists", () => {
